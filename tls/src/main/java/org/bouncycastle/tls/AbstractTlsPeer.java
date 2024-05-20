@@ -125,9 +125,19 @@ public abstract class AbstractTlsPeer
 
     public void notifySecureRenegotiation(boolean secureRenegotiation) throws IOException
     {
+        /*
+         * Enable unsafe reneg via boolean system prop
+         * This is potentially unsafe, use wisely.
+         */
         if (!secureRenegotiation)
         {
-            throw new TlsFatalAlert(AlertDescription.handshake_failure);
+            boolean allowUnsafeRenegotiation = PropertyUtils.getBooleanSystemProperty(
+                    "sun.security.ssl.allowUnsafeRenegotiation", false);
+
+            if (!allowUnsafeRenegotiation)
+            {
+                throw new TlsFatalAlert(AlertDescription.handshake_failure);
+            }
         }
     }
 
